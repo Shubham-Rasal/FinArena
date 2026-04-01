@@ -3,7 +3,6 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .coverage
-uv.lock
 *.egg-info/
 
 # Secrets and credentials (never commit)
