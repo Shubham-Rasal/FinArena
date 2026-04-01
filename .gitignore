@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+uv.lock
+*.egg-info/
+
+# Secrets and credentials (never commit)
+.env
+.env.*
+*.pem
+*.key
+secrets/
+.huggingface/
+*.token
+credentials.json
+*_secret*
+*_token*

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "acc_operating",
+    "name": "Operating",
+    "type": "operating",
+    "balance": 5000000
+  },
+  {
+    "id": "acc_payroll",
+    "name": "Payroll",
+    "type": "payroll",
+    "balance": 120000000
+  },
+  {
+    "id": "acc_reserve",
+    "name": "Reserve",
+    "type": "reserve",
+    "balance": 1000000
+  },
+  {
+    "id": "acc_fx",
+    "name": "FX",
+    "type": "fx",
+    "balance": 500000
+  }
+]

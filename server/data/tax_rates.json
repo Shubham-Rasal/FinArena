@@ -1,0 +1,22 @@
+{
+  "travel": {
+    "gst_pct": 0.05,
+    "tds_pct": 0.02
+  },
+  "meals": {
+    "gst_pct": 0.05,
+    "tds_pct": 0.0
+  },
+  "software": {
+    "gst_pct": 0.18,
+    "tds_pct": 0.1
+  },
+  "marketing": {
+    "gst_pct": 0.18,
+    "tds_pct": 0.02
+  },
+  "other": {
+    "gst_pct": 0.18,
+    "tds_pct": 0.02
+  }
+}

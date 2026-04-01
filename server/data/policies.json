@@ -1,0 +1,22 @@
+{
+  "travel": {
+    "max_amount": 50000,
+    "requires_approval_above": 25000
+  },
+  "meals": {
+    "max_amount": 2000,
+    "requires_approval_above": 1000
+  },
+  "software": {
+    "max_amount": 100000,
+    "requires_approval_above": 50000
+  },
+  "marketing": {
+    "max_amount": 500000,
+    "requires_approval_above": 100000
+  },
+  "other": {
+    "max_amount": 25000,
+    "requires_approval_above": 10000
+  }
+}

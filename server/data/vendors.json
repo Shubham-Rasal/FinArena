@@ -1,0 +1,650 @@
+[
+  {
+    "id": "v_001",
+    "name": "Vendor 1 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00001IN"
+  },
+  {
+    "id": "v_002",
+    "name": "Vendor 2 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00002IN"
+  },
+  {
+    "id": "v_003",
+    "name": "Vendor 3 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00003IN"
+  },
+  {
+    "id": "v_004",
+    "name": "Vendor 4 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00004IN"
+  },
+  {
+    "id": "v_005",
+    "name": "Vendor 5 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00005IN"
+  },
+  {
+    "id": "v_006",
+    "name": "Vendor 6 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00006IN"
+  },
+  {
+    "id": "v_007",
+    "name": "Vendor 7 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00007IN"
+  },
+  {
+    "id": "v_008",
+    "name": "Vendor 8 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00008IN"
+  },
+  {
+    "id": "v_009",
+    "name": "Vendor 9 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00009IN"
+  },
+  {
+    "id": "v_010",
+    "name": "Vendor 10 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00010IN"
+  },
+  {
+    "id": "v_011",
+    "name": "Vendor 11 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00011IN"
+  },
+  {
+    "id": "v_012",
+    "name": "Vendor 12 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00012IN"
+  },
+  {
+    "id": "v_013",
+    "name": "Vendor 13 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00013IN"
+  },
+  {
+    "id": "v_014",
+    "name": "Vendor 14 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00014IN"
+  },
+  {
+    "id": "v_015",
+    "name": "Vendor 15 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00015IN"
+  },
+  {
+    "id": "v_016",
+    "name": "Vendor 16 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00016IN"
+  },
+  {
+    "id": "v_017",
+    "name": "Vendor 17 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": true,
+    "tax_id": "GST00017IN"
+  },
+  {
+    "id": "v_018",
+    "name": "Vendor 18 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00018IN"
+  },
+  {
+    "id": "v_019",
+    "name": "Vendor 19 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00019IN"
+  },
+  {
+    "id": "v_020",
+    "name": "Vendor 20 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00020IN"
+  },
+  {
+    "id": "v_021",
+    "name": "Vendor 21 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00021IN"
+  },
+  {
+    "id": "v_022",
+    "name": "Vendor 22 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00022IN"
+  },
+  {
+    "id": "v_023",
+    "name": "Vendor 23 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00023IN"
+  },
+  {
+    "id": "v_024",
+    "name": "Vendor 24 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00024IN"
+  },
+  {
+    "id": "v_025",
+    "name": "Vendor 25 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00025IN"
+  },
+  {
+    "id": "v_026",
+    "name": "Vendor 26 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00026IN"
+  },
+  {
+    "id": "v_027",
+    "name": "Vendor 27 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00027IN"
+  },
+  {
+    "id": "v_028",
+    "name": "Vendor 28 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00028IN"
+  },
+  {
+    "id": "v_029",
+    "name": "Vendor 29 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00029IN"
+  },
+  {
+    "id": "v_030",
+    "name": "Vendor 30 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00030IN"
+  },
+  {
+    "id": "v_031",
+    "name": "Vendor 31 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00031IN"
+  },
+  {
+    "id": "v_032",
+    "name": "Vendor 32 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00032IN"
+  },
+  {
+    "id": "v_033",
+    "name": "Vendor 33 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00033IN"
+  },
+  {
+    "id": "v_034",
+    "name": "Vendor 34 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00034IN"
+  },
+  {
+    "id": "v_035",
+    "name": "Vendor 35 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00035IN"
+  },
+  {
+    "id": "v_036",
+    "name": "Vendor 36 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00036IN"
+  },
+  {
+    "id": "v_037",
+    "name": "Vendor 37 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00037IN"
+  },
+  {
+    "id": "v_038",
+    "name": "Vendor 38 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00038IN"
+  },
+  {
+    "id": "v_039",
+    "name": "Vendor 39 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00039IN"
+  },
+  {
+    "id": "v_040",
+    "name": "Vendor 40 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00040IN"
+  },
+  {
+    "id": "v_041",
+    "name": "Vendor 41 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00041IN"
+  },
+  {
+    "id": "v_042",
+    "name": "Vendor 42 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": true,
+    "tax_id": "GST00042IN"
+  },
+  {
+    "id": "v_043",
+    "name": "Vendor 43 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00043IN"
+  },
+  {
+    "id": "v_044",
+    "name": "Vendor 44 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00044IN"
+  },
+  {
+    "id": "v_045",
+    "name": "Vendor 45 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00045IN"
+  },
+  {
+    "id": "v_046",
+    "name": "Vendor 46 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00046IN"
+  },
+  {
+    "id": "v_047",
+    "name": "Vendor 47 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00047IN"
+  },
+  {
+    "id": "v_048",
+    "name": "Vendor 48 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00048IN"
+  },
+  {
+    "id": "v_049",
+    "name": "Vendor 49 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00049IN"
+  },
+  {
+    "id": "v_050",
+    "name": "Vendor 50 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00050IN"
+  },
+  {
+    "id": "v_051",
+    "name": "Vendor 51 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00051IN"
+  },
+  {
+    "id": "v_052",
+    "name": "Vendor 52 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00052IN"
+  },
+  {
+    "id": "v_053",
+    "name": "Vendor 53 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00053IN"
+  },
+  {
+    "id": "v_054",
+    "name": "Vendor 54 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00054IN"
+  },
+  {
+    "id": "v_055",
+    "name": "Vendor 55 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00055IN"
+  },
+  {
+    "id": "v_056",
+    "name": "Vendor 56 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00056IN"
+  },
+  {
+    "id": "v_057",
+    "name": "Vendor 57 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00057IN"
+  },
+  {
+    "id": "v_058",
+    "name": "Vendor 58 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00058IN"
+  },
+  {
+    "id": "v_059",
+    "name": "Vendor 59 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00059IN"
+  },
+  {
+    "id": "v_060",
+    "name": "Vendor 60 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00060IN"
+  },
+  {
+    "id": "v_061",
+    "name": "Vendor 61 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00061IN"
+  },
+  {
+    "id": "v_062",
+    "name": "Vendor 62 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00062IN"
+  },
+  {
+    "id": "v_063",
+    "name": "Vendor 63 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": true,
+    "tax_id": "GST00063IN"
+  },
+  {
+    "id": "v_064",
+    "name": "Vendor 64 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00064IN"
+  },
+  {
+    "id": "v_065",
+    "name": "Vendor 65 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00065IN"
+  },
+  {
+    "id": "v_066",
+    "name": "Vendor 66 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00066IN"
+  },
+  {
+    "id": "v_067",
+    "name": "Vendor 67 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00067IN"
+  },
+  {
+    "id": "v_068",
+    "name": "Vendor 68 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00068IN"
+  },
+  {
+    "id": "v_069",
+    "name": "Vendor 69 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00069IN"
+  },
+  {
+    "id": "v_070",
+    "name": "Vendor 70 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00070IN"
+  },
+  {
+    "id": "v_071",
+    "name": "Vendor 71 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00071IN"
+  },
+  {
+    "id": "v_072",
+    "name": "Vendor 72 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00072IN"
+  },
+  {
+    "id": "v_073",
+    "name": "Vendor 73 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00073IN"
+  },
+  {
+    "id": "v_074",
+    "name": "Vendor 74 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00074IN"
+  },
+  {
+    "id": "v_075",
+    "name": "Vendor 75 Pvt Ltd",
+    "category": "facilities",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00075IN"
+  },
+  {
+    "id": "v_076",
+    "name": "Vendor 76 Pvt Ltd",
+    "category": "consulting",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00076IN"
+  },
+  {
+    "id": "v_077",
+    "name": "Vendor 77 Pvt Ltd",
+    "category": "travel",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00077IN"
+  },
+  {
+    "id": "v_078",
+    "name": "Vendor 78 Pvt Ltd",
+    "category": "software",
+    "payment_terms_days": 15,
+    "blacklisted": false,
+    "tax_id": "GST00078IN"
+  },
+  {
+    "id": "v_079",
+    "name": "Vendor 79 Pvt Ltd",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST00079IN"
+  },
+  {
+    "id": "v_080",
+    "name": "Vendor 80 Pvt Ltd",
+    "category": "logistics",
+    "payment_terms_days": 45,
+    "blacklisted": false,
+    "tax_id": "GST00080IN"
+  },
+  {
+    "id": "v_102",
+    "name": "Marketing Vendor Alpha",
+    "category": "marketing",
+    "payment_terms_days": 30,
+    "blacklisted": false,
+    "tax_id": "GST10200IN"
+  }
+]

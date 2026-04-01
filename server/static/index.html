@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinanceOps Environment</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0c1218;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f1c24 0%, #0c1218 100%);
+      border-bottom: 1px solid #1e3a2f;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .header-icon { font-size: 32px; }
+    .header h1 { font-size: 22px; font-weight: 700; color: #fff; }
+    .header p { font-size: 13px; color: #889; margin-top: 2px; }
+    .header-badges { margin-left: auto; display: flex; gap: 8px; }
+    .badge {
+      background: #142018;
+      border: 1px solid #1e3a2f;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: #8899aa;
+    }
+    .badge b { color: #3fb950; }
+    .container {
+      display: grid;
+      grid-template-columns: 340px 1fr 320px;
+      height: calc(100vh - 80px);
+      gap: 0;
+    }
+    .panel-left {
+      background: #101820;
+      border-right: 1px solid #1e2a24;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 16px;
+      border-bottom: 1px solid #1e2a24;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #667;
+    }
+    .task-filters {
+      padding: 12px 16px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #1e2a24;
+    }
+    .filter-btn {
+      background: #141f18;
+      border: 1px solid #243028;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: #889;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: #3fb950; color: #3fb950; }
+    .filter-btn.active { background: #142820; border-color: #3fb950; color: #3fb950; }
+    .task-list { flex: 1; overflow-y: auto; padding: 8px; }
+    .task-item {
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 4px;
+      transition: all 0.15s;
+    }
+    .task-item:hover { background: #141f18; }
+    .task-item.active { background: #142820; border-left: 3px solid #3fb950; }
+    .task-item .task-id { font-size: 11px; color: #556; font-family: monospace; }
+    .task-item .task-title { font-size: 13px; color: #ccc; margin-top: 2px; line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .task-item .task-meta { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .task-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .tag-simple { background: #1a3a2a; color: #4ade80; }
+    .tag-medium { background: #3a3a1a; color: #facc15; }
+    .tag-complex { background: #3a1a1a; color: #f87171; }
+    .tag-edge_case { background: #2a1a3a; color: #c084fc; }
+    .tag-simple_lookup { background: #1a2a3a; color: #79c0ff; }
+    .tag-expense_workflow { background: #1a3a2a; color: #56d364; }
+    .tag-accounts_payable { background: #3a2a1a; color: #ffa657; }
+    .tag-accounts_receivable { background: #2a3a2a; color: #79d4a8; }
+    .tag-payroll { background: #3a1a2a; color: #ff7b72; }
+    .tag-financial_close { background: #2a2a3a; color: #d2a8ff; }
+    .tag-edge_cases { background: #2a1a2a; color: #ff9492; }
+    .panel-center { display: flex; flex-direction: column; overflow: hidden; }
+    .task-instruction {
+      padding: 20px 24px;
+      background: #121c18;
+      border-bottom: 1px solid #1e2a24;
+    }
+    .task-instruction h3 {
+      font-size: 14px;
+      color: #3fb950;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .task-instruction p { font-size: 14px; line-height: 1.6; color: #d0d0d0; }
+    .ideal-result {
+      margin-top: 14px;
+      background: #101820;
+      border: 1px solid #243028;
+      border-left: 3px solid #3fb950;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .ideal-result h4 { font-size: 12px; color: #8fd99a; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; }
+    .ideal-result .ideal-label { font-size: 11px; color: #7f8da3; margin: 6px 0 4px; }
+    .ideal-result ul { margin: 0; padding-left: 18px; color: #c7d2e1; font-size: 12px; line-height: 1.45; }
+    .step-indicator { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: #667; }
+    .step-bar { flex: 1; height: 4px; background: #1e2a24; border-radius: 2px; overflow: hidden; }
+    .step-bar-fill { height: 100%; background: #3fb950; border-radius: 2px; transition: width 0.3s ease; }
+    .action-log { flex: 1; overflow-y: auto; padding: 16px 24px; }
+    .log-entry { margin-bottom: 16px; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .log-step-label { font-size: 11px; color: #556; margin-bottom: 4px; font-family: monospace; }
+    .log-action {
+      background: #141f18;
+      border: 1px solid #243028;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 6px;
+    }
+    .log-action .tool-name { color: #3fb950; font-family: monospace; font-size: 13px; font-weight: 600; }
+    .log-action pre { margin-top: 6px; font-size: 12px; color: #8899aa; white-space: pre-wrap; word-break: break-word;
+      font-family: 'JetBrains Mono', monospace; max-height: 120px; overflow-y: auto; }
+    .log-result { background: #0e1814; border: 1px solid #1e2a24; border-radius: 8px; padding: 12px; }
+    .log-result.success { border-left: 3px solid #4ade80; }
+    .log-result.error { border-left: 3px solid #f87171; }
+    .log-result pre { font-size: 12px; color: #8899aa; white-space: pre-wrap; word-break: break-word;
+      font-family: 'JetBrains Mono', monospace; max-height: 150px; overflow-y: auto; }
+    .input-area { border-top: 1px solid #1e2a24; padding: 16px 24px; background: #101820; }
+    .tool-select-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .tool-select-row select {
+      flex: 1;
+      background: #141f18;
+      border: 1px solid #243028;
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #d0d0d0;
+      font-size: 13px;
+      font-family: monospace;
+    }
+    .tool-select-row select:focus { outline: none; border-color: #3fb950; }
+    .params-input {
+      width: 100%;
+      background: #141f18;
+      border: 1px solid #243028;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #d0d0d0;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      resize: vertical;
+      min-height: 60px;
+    }
+    .params-input:focus { outline: none; border-color: #3fb950; }
+    .params-input::placeholder { color: #445; }
+    .params-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .params-hint {
+      font-size: 11px;
+      color: #6a7a72;
+      line-height: 1.4;
+      flex: 1;
+      min-width: 200px;
+    }
+    .btn-tiny {
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .input-buttons { display: flex; gap: 8px; margin-top: 10px; }
+    .btn {
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: #238636; color: #fff; }
+    .btn-primary:hover { background: #2ea043; }
+    .btn-primary:disabled { background: #2a3a4a; color: #556; cursor: not-allowed; }
+    .btn-secondary { background: #1e2433; color: #889; border: 1px solid #2a3040; }
+    .btn-secondary:hover { border-color: #3fb950; color: #3fb950; }
+    .btn-danger { background: #3a1a1a; color: #f87171; border: 1px solid #4a2020; }
+    .btn-danger:hover { background: #4a2020; }
+    .panel-right {
+      background: #101820;
+      border-left: 1px solid #1e2a24;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .tools-section { flex: 1; overflow-y: auto; padding: 12px; }
+    .tool-info {
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: monospace;
+      color: #8899aa;
+      transition: all 0.15s;
+    }
+    .tool-info:hover { background: #141f18; color: #3fb950; }
+    .tool-info .tool-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      color: #556;
+      margin-top: 2px;
+      display: none;
+    }
+    .tool-info:hover .tool-desc { display: block; }
+    .eval-section {
+      border-top: 1px solid #1e2a24;
+      padding: 16px;
+      max-height: 50%;
+      overflow-y: auto;
+    }
+    .eval-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .eval-score { font-size: 28px; font-weight: 800; color: #3fb950; }
+    .eval-score.pass { color: #4ade80; }
+    .eval-score.fail { color: #f87171; }
+    .eval-score.partial { color: #facc15; }
+    .eval-criteria { list-style: none; }
+    .eval-criteria li {
+      padding: 6px 0;
+      font-size: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      border-bottom: 1px solid #1a1f2a;
+    }
+    .eval-criteria .icon-pass { color: #4ade80; }
+    .eval-criteria .icon-fail { color: #f87171; }
+    .eval-criteria .criteria-desc { color: #889; font-size: 11px; }
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: 40px;
+    }
+    .welcome h2 { font-size: 20px; color: #fff; margin-bottom: 8px; }
+    .welcome p { color: #667; font-size: 14px; max-width: 400px; line-height: 1.6; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a3040; border-radius: 3px; }
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #2a3040;
+      border-top-color: #3fb950;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 1024px) {
+      .container { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      .panel-left, .panel-right { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-icon">📊</div>
+    <div>
+      <h1>FinanceOps Environment</h1>
+      <p>OpenEnv — Accounting, AP/AR, Payroll, Banking &amp; FP&amp;A</p>
+    </div>
+    <div class="header-badges">
+      <span class="badge"><b>25</b> Tools</span>
+      <span class="badge"><b>70</b> Tasks</span>
+      <span class="badge"><b>150</b> Employees</span>
+      <span class="badge"><b>20</b> Max Steps</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="panel-left">
+      <div class="panel-header">Tasks</div>
+      <div class="task-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="simple">Simple</button>
+        <button class="filter-btn" data-filter="medium">Medium</button>
+        <button class="filter-btn" data-filter="complex">Complex</button>
+        <button class="filter-btn" data-filter="edge_case">Edge Case</button>
+      </div>
+      <div class="task-list" id="taskList">
+        <div style="padding: 20px; color: #556; font-size: 13px;">Loading tasks...</div>
+      </div>
+    </div>
+
+    <div class="panel-center">
+      <div class="task-instruction" id="taskInstruction">
+        <div class="welcome">
+          <h2>Select a task to begin</h2>
+          <p>Pick a task from the left. Call tools step by step. Rubric scores your trajectory at the end.</p>
+        </div>
+      </div>
+      <div class="action-log" id="actionLog"></div>
+      <div class="input-area" id="inputArea" style="display: none;">
+        <div class="tool-select-row">
+          <select id="toolSelect"><option value="">-- select a tool --</option></select>
+        </div>
+        <div class="params-toolbar">
+          <span class="params-hint">Choosing a tool fills editable sample JSON from its schema. Adjust values, then send.</span>
+          <button type="button" class="btn btn-secondary btn-tiny" id="btnFillSample" onclick="fillSampleForCurrentTool()">Reset to sample</button>
+        </div>
+        <textarea class="params-input" id="paramsInput" placeholder="{}"></textarea>
+        <div class="input-buttons">
+          <button class="btn btn-primary" id="btnStep" onclick="sendStep()">Send Tool Call</button>
+          <button class="btn btn-secondary" id="btnDone" onclick="finishEpisode()">Finish &amp; Evaluate</button>
+          <button class="btn btn-danger" id="btnReset" onclick="resetCurrentTask()">Reset Task</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-right">
+      <div class="panel-header">Available Tools</div>
+      <div class="tools-section" id="toolsSection"></div>
+      <div class="eval-section" id="evalSection" style="display: none;">
+        <div class="panel-header" style="padding: 0 0 8px 0; border: none;">Evaluation</div>
+        <div class="eval-header">
+          <span class="eval-score" id="evalScore">--</span>
+          <span id="evalLabel" style="font-size: 12px; color: #667;"></span>
+        </div>
+        <ul class="eval-criteria" id="evalCriteria"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    let tasks = [];
+    let currentTaskIdx = null;
+    let currentStep = 0;
+    let maxSteps = 20;
+    let episodeDone = false;
+    let availableTools = [];
+    let toolDefs = [];
+
+    /** Sensible defaults by parameter name (seed data IDs / types). */
+    const DEFAULT_BY_PARAM = {
+      account_id: 'acc_operating',
+      from_account_id: 'acc_reserve',
+      to_account_id: 'acc_operating',
+      vendor_id: 'v_102',
+      customer_id: 'c_001',
+      employee_id: 'emp_0001',
+      expense_id: 'exp_00001',
+      bill_id: 'bill_00001',
+      invoice_id: 'inv_00001',
+      payment_id: 'pay_00001',
+      ledger_type: 'all',
+      report_type: 'pnl',
+      category: 'travel',
+      amount: 5000,
+      period: '2025-04',
+      schedule_date: '2026-04-15',
+      due_date: '2026-04-30',
+      description: 'Sample line item',
+      reference: 'REF-001',
+      reason: 'Does not meet policy',
+      limit: 20,
+      dept: 'Engineering',
+      metric: 'revenue',
+      value: 1000000,
+      line_items: [],
+    };
+
+    function defaultForParam(key, schema) {
+      if (!schema || typeof schema !== 'object') return '';
+      if (Object.prototype.hasOwnProperty.call(DEFAULT_BY_PARAM, key)) {
+        return DEFAULT_BY_PARAM[key];
+      }
+      if (Array.isArray(schema.enum) && schema.enum.length) return schema.enum[0];
+      const t = schema.type;
+      if (t === 'boolean') return false;
+      if (t === 'number' || t === 'integer') return 0;
+      if (t === 'array') return [];
+      if (t === 'string') return '';
+      return '';
+    }
+
+    function buildSampleParams(tool) {
+      if (!tool || !tool.parameters) return {};
+      const props = tool.parameters.properties || {};
+      const required = tool.parameters.required || [];
+      const keys = [...new Set([...required, ...Object.keys(props)])];
+      const out = {};
+      for (const key of keys) {
+        const sch = props[key];
+        if (!sch) continue;
+        out[key] = defaultForParam(key, sch);
+      }
+      return out;
+    }
+
+    function selectTool(name) {
+      const sel = document.getElementById('toolSelect');
+      const ta = document.getElementById('paramsInput');
+      if (sel) sel.value = name || '';
+      if (!name) {
+        ta.value = '';
+        ta.placeholder = '{}';
+        return;
+      }
+      const tool = toolDefs.find(t => t.name === name);
+      if (!tool) {
+        ta.value = '{}';
+        return;
+      }
+      const sample = buildSampleParams(tool);
+      ta.value = JSON.stringify(sample, null, 2);
+      ta.placeholder = 'Edit JSON, then Send Tool Call';
+    }
+
+    function fillSampleForCurrentTool() {
+      const name = document.getElementById('toolSelect').value;
+      if (!name) {
+        alert('Select a tool first');
+        return;
+      }
+      selectTool(name);
+    }
+
+    async function init() {
+      await loadTasks();
+      await loadToolDefs();
+      renderTaskList();
+      renderToolsPanel();
+      document.getElementById('toolSelect').addEventListener('change', function () {
+        selectTool(this.value);
+      });
+    }
+
+    async function loadTasks() {
+      const res = await fetch(`${API_BASE}/api/tasks`);
+      tasks = await res.json();
+    }
+
+    async function loadToolDefs() {
+      const res = await fetch(`${API_BASE}/api/tool_definitions`);
+      toolDefs = await res.json();
+    }
+
+    function renderTaskList(filter = 'all') {
+      const list = document.getElementById('taskList');
+      const filtered = filter === 'all' ? tasks : tasks.filter(t => t.difficulty === filter);
+      list.innerHTML = filtered.map((t) => `
+        <div class="task-item" data-idx="${t.index}" onclick="selectTask(${t.index})">
+          <div class="task-id">${t.task_id}</div>
+          <div class="task-title">${t.instruction}</div>
+          <div class="task-meta">
+            <span class="task-tag tag-${t.difficulty}">${t.difficulty}</span>
+            <span class="task-tag tag-${t.category}">${t.category}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderTaskList(btn.dataset.filter);
+      });
+    });
+
+    async function selectTask(idx) {
+      currentTaskIdx = idx;
+      currentStep = 0;
+      episodeDone = false;
+      document.querySelectorAll('.task-item').forEach(el => el.classList.remove('active'));
+      const active = document.querySelector(`.task-item[data-idx="${idx}"]`);
+      if (active) active.classList.add('active');
+
+      const res = await fetch(`${API_BASE}/api/reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task_idx: idx }),
+      });
+      const data = await res.json();
+      maxSteps = data.max_steps || maxSteps;
+
+      const instrEl = document.getElementById('taskInstruction');
+      const task = tasks.find(t => t.index === idx);
+      instrEl.innerHTML = `
+        <h3>
+          <span class="task-tag tag-${task.difficulty}">${task.difficulty}</span>
+          <span class="task-tag tag-${task.category}">${task.category}</span>
+          ${data.task_id}
+        </h3>
+        <p>${escapeHtml(data.instruction)}</p>
+        ${renderIdealResult(task)}
+        <div class="step-indicator">
+          <span>Step ${currentStep}/${maxSteps}</span>
+          <div class="step-bar"><div class="step-bar-fill" style="width: 0%"></div></div>
+        </div>
+      `;
+
+      document.getElementById('actionLog').innerHTML = '';
+      document.getElementById('inputArea').style.display = 'block';
+      document.getElementById('evalSection').style.display = 'none';
+
+      availableTools = data.available_tools || [];
+      const sel = document.getElementById('toolSelect');
+      sel.innerHTML = '<option value="">-- select a tool --</option>' +
+        availableTools.map(t => `<option value="${t}">${t}</option>`).join('');
+
+      updateButtons();
+    }
+
+    async function resetCurrentTask() {
+      if (currentTaskIdx !== null) await selectTask(currentTaskIdx);
+    }
+
+    async function sendStep() {
+      const toolName = document.getElementById('toolSelect').value;
+      if (!toolName) { alert('Select a tool first'); return; }
+
+      let params = {};
+      const paramsText = document.getElementById('paramsInput').value.trim();
+      if (paramsText) {
+        try { params = JSON.parse(paramsText); }
+        catch (e) { alert('Invalid JSON: ' + e.message); return; }
+      }
+
+      document.getElementById('btnStep').disabled = true;
+      document.getElementById('btnStep').innerHTML = '<span class="spinner"></span> Running...';
+
+      const res = await fetch(`${API_BASE}/api/step`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tool_name: toolName, arguments: params }),
+      });
+      const data = await res.json();
+
+      currentStep = data.step || currentStep + 1;
+      episodeDone = data.done || false;
+
+      addLogEntry(toolName, params, data.tool_result, data.done, data.reward);
+      updateStepIndicator();
+
+      if (episodeDone && data.metadata && data.metadata.evaluation) {
+        showEvaluation(data.metadata.evaluation);
+      }
+
+      updateButtons();
+    }
+
+    async function finishEpisode() {
+      if (!episodeDone) {
+        const res = await fetch(`${API_BASE}/api/evaluate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await res.json();
+        episodeDone = true;
+        showEvaluation(data);
+        updateButtons();
+      }
+    }
+
+    function addLogEntry(toolName, params, result, done, reward) {
+      const log = document.getElementById('actionLog');
+      const isSuccess = result && result.success !== false;
+      const resultJson = JSON.stringify(result, null, 2);
+      const paramsJson = JSON.stringify(params, null, 2);
+
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `
+        <div class="log-step-label">Step ${currentStep}</div>
+        <div class="log-action">
+          <span class="tool-name">${toolName}</span>
+          <pre>${paramsJson}</pre>
+        </div>
+        <div class="log-result ${isSuccess ? 'success' : 'error'}">
+          <pre>${resultJson.length > 800 ? resultJson.substring(0, 800) + '\\n...' : resultJson}</pre>
+        </div>
+      `;
+      log.appendChild(entry);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function renderIdealResult(task) {
+      if (!task) return '';
+      const expectedTools = (task.expected_tools || [])
+        .map(t => `<li><code>${escapeHtml(String(t))}</code></li>`).join('');
+      const criteria = (task.rubric_criteria || [])
+        .map(c => `<li>${escapeHtml(c.description || c.name || 'Criterion')}</li>`).join('');
+      return `
+        <div class="ideal-result">
+          <h4>Ideal Result</h4>
+          <div class="ideal-label">Expected tools:</div>
+          <ul>${expectedTools || '<li>Not specified</li>'}</ul>
+          <div class="ideal-label">Success criteria:</div>
+          <ul>${criteria || '<li>Not specified</li>'}</ul>
+        </div>
+      `;
+    }
+
+    function showEvaluation(evalData) {
+      document.getElementById('evalSection').style.display = 'block';
+      const score = evalData.score || 0;
+      const scoreEl = document.getElementById('evalScore');
+      scoreEl.textContent = `${Math.round(score * 100)}%`;
+      scoreEl.className = 'eval-score ' + (score >= 1 ? 'pass' : score >= 0.5 ? 'partial' : 'fail');
+      document.getElementById('evalLabel').textContent =
+        evalData.passed ? 'ALL CRITERIA MET' : `${evalData.passed_count}/${evalData.total_criteria} criteria`;
+      document.getElementById('evalCriteria').innerHTML = (evalData.criteria_results || []).map(c => `
+        <li>
+          <span class="${c.passed ? 'icon-pass' : 'icon-fail'}">${c.passed ? '✓' : '✗'}</span>
+          <div>
+            <div style="color: ${c.passed ? '#4ade80' : '#f87171'}">${c.name}</div>
+            <div class="criteria-desc">${c.description}</div>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    function updateStepIndicator() {
+      const pct = (currentStep / maxSteps) * 100;
+      const indicator = document.querySelector('.step-indicator');
+      if (indicator) {
+        indicator.querySelector('span').textContent = `Step ${currentStep}/${maxSteps}`;
+        indicator.querySelector('.step-bar-fill').style.width = `${pct}%`;
+      }
+    }
+
+    function updateButtons() {
+      document.getElementById('btnStep').disabled = episodeDone;
+      document.getElementById('btnStep').innerHTML = episodeDone ? 'Episode Done' : 'Send Tool Call';
+    }
+
+    function renderToolsPanel() {
+      document.getElementById('toolsSection').innerHTML = toolDefs.map(t => `
+        <div class="tool-info" onclick="selectTool(${JSON.stringify(t.name)})">
+          ${escapeHtml(t.name)}
+          <div class="tool-desc">${escapeHtml(t.description.substring(0, 80))}${t.description.length > 80 ? '...' : ''}</div>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    init();
+  </script>
+</body>
+</html>

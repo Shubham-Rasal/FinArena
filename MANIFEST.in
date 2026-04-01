@@ -1,0 +1,2 @@
+recursive-include server/data *.json
+recursive-include server/static *.*
