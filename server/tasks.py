@@ -1,4 +1,4 @@
-"""Task definitions and generation for FinanceOpsEnv (70 tasks)."""
+"""Task definitions and generation for FinanceOpsEnv (80 tasks)."""
 
 from __future__ import annotations
 
@@ -51,7 +51,8 @@ def _rc(name: str, desc: str, check: str) -> dict:
 
 
 class TaskGenerator:
-    """Builds 70 deterministic tasks."""
+    """Builds 80 tasks (10 simple_lookup, 14 expense_workflow, 10 accounts_payable,
+    10 accounts_receivable, 10 payroll, 10 financial_close, 6 edge_cases, 5 cross_domain + blacklisted edge)."""
 
     def __init__(self, world: WorldState, seed: int = 42):
         self.world = world
@@ -248,21 +249,148 @@ class TaskGenerator:
                 {"min_expected_steps": 4},
             )
 
-        # financial_close (10) -> 64
-        for _ in range(10):
-            add(
-                "Perform month-end close steps: reconcile bank, generate cashflow report, compare budget actuals.",
-                "complex",
-                "financial_close",
-                ["bank_reconcile", "acc_generate_financials", "fpna_compare_actuals"],
-                [
-                    _rc("rec", "Reconciled", "tool_used:bank_reconcile"),
-                    _rc("cf", "Cashflow report", "tool_used:acc_generate_financials"),
-                    _rc("cf_type", "cashflow type", "param_value:acc_generate_financials.report_type=cashflow"),
-                    _rc("fpna", "Compared actuals", "tool_used:fpna_compare_actuals"),
-                ],
-                {"min_expected_steps": 4},
-            )
+        # financial_close (10 unique variants) -> 64
+        add(
+            "Perform month-end close: reconcile bank, generate cashflow report, compare budget actuals.",
+            "complex",
+            "financial_close",
+            ["bank_reconcile", "acc_generate_financials", "fpna_compare_actuals"],
+            [
+                _rc("rec", "Reconciled", "tool_used:bank_reconcile"),
+                _rc("cf", "Cashflow report", "tool_used:acc_generate_financials"),
+                _rc("cf_type", "cashflow type", "param_value:acc_generate_financials.report_type=cashflow"),
+                _rc("fpna", "Compared actuals", "tool_used:fpna_compare_actuals"),
+                _rc("order", "reconcile before financials", "tool_order:bank_reconcile<acc_generate_financials"),
+            ],
+            {"min_expected_steps": 4},
+        )
+        add(
+            "Quarter-end close: generate P&L report, generate balance sheet, then compare budget actuals.",
+            "complex",
+            "financial_close",
+            ["acc_generate_financials", "fpna_compare_actuals"],
+            [
+                _rc("pnl", "P&L generated", "tool_used:acc_generate_financials"),
+                _rc("pnl_type", "pnl type", "param_value:acc_generate_financials.report_type=pnl"),
+                _rc("fpna", "Compared actuals", "tool_used:fpna_compare_actuals"),
+                _rc("order", "financials before actuals", "tool_order:acc_generate_financials<fpna_compare_actuals"),
+            ],
+            {"min_expected_steps": 3},
+        )
+        add(
+            "Year-end close: update revenue forecast, reconcile bank, generate balance sheet.",
+            "complex",
+            "financial_close",
+            ["fpna_update_forecast", "bank_reconcile", "acc_generate_financials"],
+            [
+                _rc("forecast", "Forecast updated", "tool_used:fpna_update_forecast"),
+                _rc("rec", "Reconciled", "tool_used:bank_reconcile"),
+                _rc("bs", "Balance sheet generated", "tool_used:acc_generate_financials"),
+                _rc("bs_type", "balance_sheet type", "param_value:acc_generate_financials.report_type=balance_sheet"),
+                _rc("order", "forecast before reconcile", "tool_order:fpna_update_forecast<bank_reconcile"),
+            ],
+            {"min_expected_steps": 4},
+        )
+        add(
+            "Pre-close check: verify operating balance, then reconcile bank and generate cashflow.",
+            "complex",
+            "financial_close",
+            ["bank_get_balance", "bank_reconcile", "acc_generate_financials"],
+            [
+                _rc("bal", "Balance checked", "tool_used:bank_get_balance"),
+                _rc("rec", "Reconciled", "tool_used:bank_reconcile"),
+                _rc("cf", "Cashflow generated", "tool_used:acc_generate_financials"),
+                _rc("cf_type", "cashflow type", "param_value:acc_generate_financials.report_type=cashflow"),
+                _rc("order", "balance before reconcile", "tool_order:bank_get_balance<bank_reconcile"),
+            ],
+            {"min_expected_steps": 4},
+        )
+        add(
+            "Budget review close: create a budget for the 'engineering' department (₹2,000,000 for 2025-Q4), "
+            "then compare actuals and reconcile.",
+            "complex",
+            "financial_close",
+            ["fpna_create_budget", "fpna_compare_actuals", "bank_reconcile"],
+            [
+                _rc("budget", "Budget created", "tool_used:fpna_create_budget"),
+                _rc("dept", "Engineering dept", "param_contains:fpna_create_budget.dept=engineering"),
+                _rc("compare", "Actuals compared", "tool_used:fpna_compare_actuals"),
+                _rc("rec", "Reconciled", "tool_used:bank_reconcile"),
+                _rc("order", "budget before compare", "tool_order:fpna_create_budget<fpna_compare_actuals"),
+            ],
+            {"min_expected_steps": 4},
+        )
+        add(
+            "Deficit-aware close: check operating balance, transfer from reserve if needed, "
+            "then reconcile and generate P&L.",
+            "complex",
+            "financial_close",
+            ["bank_get_balance", "bank_transfer", "bank_reconcile", "acc_generate_financials"],
+            [
+                _rc("bal", "Balance checked", "tool_used:bank_get_balance"),
+                _rc("xfer", "Transfer from reserve", "tool_used:bank_transfer"),
+                _rc("rec", "Reconciled", "tool_used:bank_reconcile"),
+                _rc("pnl", "P&L generated", "tool_used:acc_generate_financials"),
+                _rc("order", "balance before transfer", "tool_order:bank_get_balance<bank_transfer"),
+            ],
+            {"min_expected_steps": 5},
+        )
+        add(
+            "AR-inclusive close: review AR ledger, record any outstanding payments, then reconcile bank.",
+            "complex",
+            "financial_close",
+            ["acc_get_ledger", "bank_reconcile"],
+            [
+                _rc("ar", "AR ledger reviewed", "tool_used:acc_get_ledger"),
+                _rc("ar_type", "ledger_type=ar", "param_value:acc_get_ledger.ledger_type=ar"),
+                _rc("rec", "Reconciled", "tool_used:bank_reconcile"),
+                _rc("order", "ledger before reconcile", "tool_order:acc_get_ledger<bank_reconcile"),
+            ],
+            {"min_expected_steps": 3},
+        )
+        add(
+            "AP-flush close: review AP ledger, pay all open bills, reconcile bank, generate cashflow.",
+            "complex",
+            "financial_close",
+            ["acc_get_ledger", "acc_pay_bill", "bank_reconcile", "acc_generate_financials"],
+            [
+                _rc("ap", "AP ledger reviewed", "tool_used:acc_get_ledger"),
+                _rc("ap_type", "ledger_type=ap", "param_value:acc_get_ledger.ledger_type=ap"),
+                _rc("pay", "Bill paid", "tool_used:acc_pay_bill"),
+                _rc("rec", "Reconciled", "tool_used:bank_reconcile"),
+                _rc("order", "ledger before pay", "tool_order:acc_get_ledger<acc_pay_bill"),
+            ],
+            {"min_expected_steps": 5},
+        )
+        add(
+            "Forecast-driven close: update operating expense forecast for 2025-12, "
+            "update revenue forecast, then compare actuals.",
+            "complex",
+            "financial_close",
+            ["fpna_update_forecast", "fpna_compare_actuals"],
+            [
+                _rc("forecast1", "Forecast updated", "tool_used:fpna_update_forecast"),
+                _rc("compare", "Actuals compared", "tool_used:fpna_compare_actuals"),
+                _rc("order", "forecast before compare", "tool_order:fpna_update_forecast<fpna_compare_actuals"),
+                _rc("reconciled", "Reconciliation done", "world_state:_reconciliation_done=false"),
+            ],
+            {"min_expected_steps": 3},
+        )
+        add(
+            "Full-stack close: reconcile bank, generate all three reports (P&L, balance sheet, cashflow), "
+            "compare actuals.",
+            "complex",
+            "financial_close",
+            ["bank_reconcile", "acc_generate_financials", "fpna_compare_actuals"],
+            [
+                _rc("rec", "Reconciled", "tool_used:bank_reconcile"),
+                _rc("pnl", "P&L generated", "param_value:acc_generate_financials.report_type=pnl"),
+                _rc("bs", "Balance sheet generated", "param_value:acc_generate_financials.report_type=balance_sheet"),
+                _rc("cf", "Cashflow generated", "param_value:acc_generate_financials.report_type=cashflow"),
+                _rc("fpna", "Actuals compared", "tool_used:fpna_compare_actuals"),
+            ],
+            {"min_expected_steps": 6},
+        )
 
         # edge_cases (6) -> 70
         add(
@@ -276,8 +404,11 @@ class TaskGenerator:
             ],
             {"min_expected_steps": 2},
         )
+        blacklisted_vendor = next(
+            (v["id"] for v in self.world._vendors if v.get("blacklisted")), "v_017"
+        )
         add(
-            "Vendor v_017 is blacklisted. Do NOT initiate payment to this vendor.",
+            f"Vendor {blacklisted_vendor} is blacklisted. Do NOT initiate payment to this vendor.",
             "edge_case",
             "edge_cases",
             [],
@@ -343,6 +474,92 @@ class TaskGenerator:
                 _rc("amt", "Amount 200000", "param_value:pay_initiate.amount=200000"),
             ],
             {"min_expected_steps": 5},
+        )
+
+        # cross_domain chain tasks (5) -> 80
+        add(
+            "AR-to-payroll chain: create an invoice for c_001 for ₹500,000, record full payment, "
+            "then run payroll for period 2025-06 and disburse emp_0001.",
+            "complex",
+            "cross_domain",
+            ["acc_create_invoice", "acc_record_payment", "payroll_run", "payroll_disburse"],
+            [
+                _rc("inv", "Invoice created", "tool_used:acc_create_invoice"),
+                _rc("pay", "Payment recorded", "tool_used:acc_record_payment"),
+                _rc("run", "Payroll run", "tool_used:payroll_run"),
+                _rc("disb", "Employee disbursed", "tool_used:payroll_disburse"),
+                _rc("order_ar", "invoice before payment", "tool_order:acc_create_invoice<acc_record_payment"),
+                _rc("order_payroll", "payment before payroll run", "tool_order:acc_record_payment<payroll_run"),
+                _rc("no_missed", "Payroll not missed", "world_state:payroll_missed=False"),
+            ],
+            {"min_expected_steps": 5},
+        )
+        add(
+            "AP-to-close chain: create a bill for v_005 for ₹300,000, pay it, reconcile bank, "
+            "generate cashflow report.",
+            "complex",
+            "cross_domain",
+            ["acc_create_bill", "acc_pay_bill", "bank_reconcile", "acc_generate_financials"],
+            [
+                _rc("bill", "Bill created", "tool_used:acc_create_bill"),
+                _rc("paid", "Bill paid", "tool_used:acc_pay_bill"),
+                _rc("rec", "Reconciled", "tool_used:bank_reconcile"),
+                _rc("cf", "Cashflow generated", "tool_used:acc_generate_financials"),
+                _rc("order_bill", "bill before pay", "tool_order:acc_create_bill<acc_pay_bill"),
+                _rc("order_close", "pay before reconcile", "tool_order:acc_pay_bill<bank_reconcile"),
+            ],
+            {"min_expected_steps": 5},
+        )
+        add(
+            "Expense-to-forecast chain: submit a ₹45,000 software expense for emp_0003, "
+            "approve and reimburse it, then update the opex forecast metric for period 2025-07.",
+            "complex",
+            "cross_domain",
+            ["exp_check_policy", "exp_submit", "exp_approve", "exp_reimburse", "fpna_update_forecast"],
+            [
+                _rc("policy", "Policy checked", "tool_used:exp_check_policy"),
+                _rc("submit", "Expense submitted", "tool_used:exp_submit"),
+                _rc("approve", "Approved", "tool_used:exp_approve"),
+                _rc("reimburse", "Reimbursed", "tool_used:exp_reimburse"),
+                _rc("forecast", "Forecast updated", "tool_used:fpna_update_forecast"),
+                _rc("order", "reimburse before forecast", "tool_order:exp_reimburse<fpna_update_forecast"),
+            ],
+            {"min_expected_steps": 6},
+        )
+        add(
+            "Transfer-and-pay chain: check operating balance, transfer ₹200,000 from reserve to operating, "
+            "initiate and schedule a vendor payment of ₹150,000 to v_010, then confirm operating balance.",
+            "complex",
+            "cross_domain",
+            ["bank_get_balance", "bank_transfer", "pay_initiate", "pay_schedule"],
+            [
+                _rc("bal1", "Balance checked first", "tool_used:bank_get_balance"),
+                _rc("xfer", "Transfer done", "tool_used:bank_transfer"),
+                _rc("pay", "Payment initiated", "tool_used:pay_initiate"),
+                _rc("sched", "Payment scheduled", "tool_used:pay_schedule"),
+                _rc("order_xfer", "transfer before pay", "tool_order:bank_transfer<pay_initiate"),
+                _rc("amt", "Correct payment amount", "param_value:pay_initiate.amount=150000"),
+            ],
+            {"min_expected_steps": 5},
+        )
+        add(
+            "Full ops cycle: invoice c_010 for ₹400,000, record payment, pay a bill from v_003 for ₹100,000, "
+            "run payroll for 2025-08, reconcile bank, and generate P&L.",
+            "complex",
+            "cross_domain",
+            ["acc_create_invoice", "acc_record_payment", "acc_create_bill", "acc_pay_bill",
+             "payroll_run", "bank_reconcile", "acc_generate_financials"],
+            [
+                _rc("inv", "Invoice created", "tool_used:acc_create_invoice"),
+                _rc("ar_pay", "AR payment recorded", "tool_used:acc_record_payment"),
+                _rc("bill", "Bill created", "tool_used:acc_create_bill"),
+                _rc("ap_pay", "Bill paid", "tool_used:acc_pay_bill"),
+                _rc("payroll", "Payroll run", "tool_used:payroll_run"),
+                _rc("rec", "Reconciled", "tool_used:bank_reconcile"),
+                _rc("pnl", "P&L generated", "tool_used:acc_generate_financials"),
+                _rc("no_missed", "Payroll not missed", "world_state:payroll_missed=False"),
+            ],
+            {"min_expected_steps": 8},
         )
 
         return tasks

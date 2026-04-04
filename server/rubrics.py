@@ -37,6 +37,7 @@ class RubricEvaluator:
             "cash_sufficient": self._check_cash_sufficient,
             "no_duplicate": self._check_no_duplicate,
             "result_field": self._check_result_field,
+            "world_state": self._check_world_state,
         }
 
     def evaluate(
@@ -133,15 +134,13 @@ class RubricEvaluator:
         if len(parts) != 2:
             return False
         tool_a, tool_b = parts[0].strip(), parts[1].strip()
-        idx_a = idx_b = None
-        for i, action in enumerate(action_log):
-            if action["tool"] == tool_a and idx_a is None:
-                idx_a = i
-            if action["tool"] == tool_b and idx_b is None:
-                idx_b = i
-        if idx_a is None or idx_b is None:
+        # Find last occurrence of A before first occurrence of B after it
+        # This handles retry patterns: any A before any B is sufficient
+        indices_a = [i for i, a in enumerate(action_log) if a["tool"] == tool_a]
+        indices_b = [i for i, a in enumerate(action_log) if a["tool"] == tool_b]
+        if not indices_a or not indices_b:
             return False
-        return idx_a < idx_b
+        return min(indices_a) < max(indices_b)
 
     def _check_tool_count(self, spec: str, action_log: list[dict]) -> bool:
         match = re.match(r"(\w+)>=(\d+)", spec)
@@ -203,6 +202,30 @@ class RubricEvaluator:
             return str(actual) == expected.strip() or actual == self._coerce(expected.strip())
         return False
 
+    def _check_world_state(self, spec: str, action_log: list[dict]) -> bool:
+        """Check world state attribute: ATTR=VALUE or ATTR>=VALUE or ATTR<=VALUE."""
+        if self._world is None:
+            return False
+        for op in (">=", "<=", "="):
+            if op in spec:
+                attr, expected = spec.split(op, 1)
+                attr = attr.strip()
+                expected = expected.strip()
+                actual = getattr(self._world, attr, None)
+                if actual is None:
+                    return False
+                try:
+                    actual_f = float(actual)
+                    expected_f = float(expected)
+                    if op == ">=":
+                        return actual_f >= expected_f
+                    if op == "<=":
+                        return actual_f <= expected_f
+                    return actual_f == expected_f
+                except (TypeError, ValueError):
+                    return str(actual).lower() == expected.lower()
+        return False
+
     @staticmethod
     def _coerce(val: str) -> Any:
         try:
@@ -249,7 +272,7 @@ def compute_reward(
         reward -= 0.5
 
     min_steps = int(ctx.get("min_expected_steps", 4))
-    efficiency = 0.1 * min(min_steps / max(step_count, 1), 1.0)
+    efficiency = 0.15 * min(min_steps / max(step_count, 1), 1.0)
     reward += efficiency
 
     return max(0.0, min(1.0, reward))

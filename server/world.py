@@ -20,7 +20,7 @@ def _load_json(name: str) -> Any:
 class WorldState:
     """Enterprise finance state: accounts, AR/AP, expenses, payroll, FP&A."""
 
-    def __init__(self) -> None:
+    def __init__(self, seed: int = 0) -> None:
         self._employees: list[dict] = _load_json("employees.json")
         self._vendors: list[dict] = _load_json("vendors.json")
         self._customers: list[dict] = _load_json("customers.json")
@@ -29,6 +29,8 @@ class WorldState:
         self._budgets_template: dict = copy.deepcopy(_load_json("budgets.json"))
 
         self._accounts_snapshot: list[dict] = copy.deepcopy(_load_json("accounts.json"))
+        self._episode_seed: int = seed
+        self._episode_rng = __import__("random").Random(seed)
 
         self._action_log: list[dict] = []
         self._counter_invoice = 1
@@ -54,7 +56,14 @@ class WorldState:
         self._reset_ephemeral()
 
     def _reset_ephemeral(self) -> None:
-        self.accounts = {a["id"]: copy.deepcopy(a) for a in self._accounts_snapshot}
+        # Apply ±20% balance variance per episode so agents cannot memorise exact values
+        accounts: dict[str, dict] = {}
+        for a in self._accounts_snapshot:
+            acc = copy.deepcopy(a)
+            jitter = self._episode_rng.uniform(0.80, 1.20)
+            acc["balance"] = round(acc["balance"] * jitter, 2)
+            accounts[acc["id"]] = acc
+        self.accounts = accounts
         self.invoices = []
         self.bills = []
         self.expenses = []
@@ -67,8 +76,10 @@ class WorldState:
         self.payroll_missed = False
         self._reconciliation_done = False
 
-    def reset(self) -> None:
+    def reset(self, episode_seed: Optional[int] = None) -> None:
         """Reset transactional state for a new episode."""
+        if episode_seed is not None:
+            self._episode_rng = __import__("random").Random(episode_seed)
         self._action_log = []
         self._counter_invoice = 1
         self._counter_bill = 1
@@ -382,6 +393,7 @@ class WorldState:
             "total_net": total_net,
             "employee_count": len(breakdown),
             "breakdown": breakdown[:20],
+            "truncated": len(breakdown) > 20,
         }
         self.payroll_runs.append(run)
         return {"success": True, "payroll_run": run}

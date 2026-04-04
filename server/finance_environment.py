@@ -33,27 +33,38 @@ class FinanceOpsEnvironment(Environment):
         self._max_steps = max_steps
         self._rng = random.Random(seed)
 
-        self.world = WorldState()
+        self.world = WorldState(seed=seed)
         self.tool_registry = ToolRegistry(self.world)
         self.evaluator = RubricEvaluator()
 
         self._task_gen = TaskGenerator(self.world, seed=seed)
         self._tasks = self._task_gen.generate_all_tasks()
-        self._task_idx = 0
+        self._task_idx = -1  # -1 = use random sampling; ≥0 = explicit index
         self._current_task = None
 
         self._state = State(episode_id=str(uuid4()), step_count=0)
         self._done = False
         self._tool_names = [t["name"] for t in TOOL_DEFINITIONS]
         self._prev_criteria_score: float = 0.0
+        self._episode_max_steps: int = max_steps
 
-    def reset(self, seed: int | None = None, episode_id: str | None = None, **kwargs: Any) -> FinanceObservation:
-        self.world.reset()
+    def reset(self, seed: int | None = None, episode_id: str | None = None,
+              task_idx: int | None = None, **kwargs: Any) -> FinanceObservation:
+        ep_seed = seed if seed is not None else self._rng.randint(0, 2**31)
+        self.world.reset(episode_seed=ep_seed)
         self._done = False
         self._prev_criteria_score = 0.0
 
-        self._current_task = self._tasks[self._task_idx % len(self._tasks)]
-        self._task_idx += 1
+        # Explicit task_idx (e.g. from playground API) overrides random sampling
+        if task_idx is not None:
+            self._current_task = self._tasks[task_idx % len(self._tasks)]
+        elif self._task_idx >= 0:
+            # _task_idx set externally (playground compat): use it once then go random
+            self._current_task = self._tasks[self._task_idx % len(self._tasks)]
+            self._task_idx = -1  # sentinel: revert to random after explicit pick
+        else:
+            # Random sampling for RL training — prevents episode-order memorisation
+            self._current_task = self._rng.choice(self._tasks)
 
         if self._current_task.setup_fn:
             self._current_task.setup_fn(self.world)
@@ -61,13 +72,18 @@ class FinanceOpsEnvironment(Environment):
         ep_id = episode_id or str(uuid4())
         self._state = State(episode_id=ep_id, step_count=0)
 
+        # Per-task horizon: 3× the minimum expected steps, capped at env max_steps
+        min_steps = int(self._current_task.context.get("min_expected_steps", 4))
+        task_max_steps = min(self._max_steps, max(min_steps * 3, 6))
+        self._episode_max_steps = task_max_steps
+
         return FinanceObservation(
             task_id=self._current_task.task_id,
             instruction=self._current_task.instruction,
             tool_name="",
             tool_result={},
             step=0,
-            max_steps=self._max_steps,
+            max_steps=task_max_steps,
             available_tools=self._tool_names,
             done=False,
             reward=0.0,
@@ -75,6 +91,7 @@ class FinanceOpsEnvironment(Environment):
                 "difficulty": self._current_task.difficulty,
                 "category": self._current_task.category,
                 "context": self._current_task.context,
+                "task_max_steps": task_max_steps,
             },
         )
 
@@ -86,7 +103,7 @@ class FinanceOpsEnvironment(Environment):
                 tool_name=action.tool_name,
                 tool_result={"error": "Episode already finished"},
                 step=self._state.step_count,
-                max_steps=self._max_steps,
+                max_steps=self._episode_max_steps,
                 available_tools=self._tool_names,
                 done=True,
                 reward=0.0,
@@ -96,7 +113,7 @@ class FinanceOpsEnvironment(Environment):
         self._state.step_count += 1
         result = self.tool_registry.execute(action.tool_name, action.arguments)
 
-        done = self._state.step_count >= self._max_steps
+        done = self._state.step_count >= self._episode_max_steps
         self._done = done
 
         reward = 0.0
@@ -128,7 +145,7 @@ class FinanceOpsEnvironment(Environment):
             tool_name=action.tool_name,
             tool_result=result,
             step=self._state.step_count,
-            max_steps=self._max_steps,
+            max_steps=self._episode_max_steps,
             available_tools=self._tool_names,
             done=done,
             reward=reward,

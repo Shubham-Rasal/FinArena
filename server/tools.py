@@ -88,13 +88,16 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
     },
     {
         "name": "exp_submit",
-        "description": "Submit an employee expense report.",
+        "description": "Submit an employee expense report. The parameter name is 'category' (not 'expense_category'). Valid categories: travel, marketing, software, consulting, facilities, logistics, other.",
         "parameters": {
             "type": "object",
             "properties": {
                 "employee_id": {"type": "string"},
                 "amount": {"type": "number"},
-                "category": {"type": "string"},
+                "category": {
+                    "type": "string",
+                    "enum": ["travel", "marketing", "software", "consulting", "facilities", "logistics", "other"],
+                },
                 "description": {"type": "string"},
             },
             "required": ["employee_id", "amount", "category", "description"],
@@ -132,11 +135,14 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
     },
     {
         "name": "exp_check_policy",
-        "description": "Check expense category against policy limits.",
+        "description": "Check an expense amount against policy limits for its category. Required params: 'category' and 'amount'. Valid categories: travel, marketing, software, consulting, facilities, logistics, other.",
         "parameters": {
             "type": "object",
             "properties": {
-                "category": {"type": "string"},
+                "category": {
+                    "type": "string",
+                    "enum": ["travel", "marketing", "software", "consulting", "facilities", "logistics", "other"],
+                },
                 "amount": {"type": "number"},
             },
             "required": ["category", "amount"],
@@ -214,32 +220,46 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
     },
     {
         "name": "bank_get_balance",
-        "description": "Get balance for a bank account id.",
+        "description": "Get balance for a bank account. Valid account_id values: acc_operating, acc_payroll, acc_reserve, acc_fx.",
         "parameters": {
             "type": "object",
-            "properties": {"account_id": {"type": "string"}},
+            "properties": {
+                "account_id": {
+                    "type": "string",
+                    "enum": ["acc_operating", "acc_payroll", "acc_reserve", "acc_fx"],
+                }
+            },
             "required": ["account_id"],
         },
     },
     {
         "name": "bank_get_transactions",
-        "description": "List recent transactions, optionally filtered by account.",
+        "description": "List recent transactions, optionally filtered by account. Valid account_id values: acc_operating, acc_payroll, acc_reserve, acc_fx.",
         "parameters": {
             "type": "object",
             "properties": {
-                "account_id": {"type": "string"},
+                "account_id": {
+                    "type": "string",
+                    "enum": ["acc_operating", "acc_payroll", "acc_reserve", "acc_fx"],
+                },
                 "limit": {"type": "integer"},
             },
         },
     },
     {
         "name": "bank_transfer",
-        "description": "Transfer cash between two accounts.",
+        "description": "Transfer cash between two accounts. Valid account IDs: acc_operating, acc_payroll, acc_reserve, acc_fx.",
         "parameters": {
             "type": "object",
             "properties": {
-                "from_account_id": {"type": "string"},
-                "to_account_id": {"type": "string"},
+                "from_account_id": {
+                    "type": "string",
+                    "enum": ["acc_operating", "acc_payroll", "acc_reserve", "acc_fx"],
+                },
+                "to_account_id": {
+                    "type": "string",
+                    "enum": ["acc_operating", "acc_payroll", "acc_reserve", "acc_fx"],
+                },
                 "amount": {"type": "number"},
             },
             "required": ["from_account_id", "to_account_id", "amount"],

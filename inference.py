@@ -32,7 +32,7 @@ from openai import OpenAI
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-API_BASE_URL: str = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+API_BASE_URL: str = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 API_KEY: str = os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN") or ""
 MODEL_NAME: str = os.getenv("MODEL_NAME", "gpt-4o-mini")
 ENV_BASE_URL: str = os.getenv("ENV_BASE_URL", "http://localhost:7860")
@@ -118,7 +118,10 @@ SYSTEM_PROMPT = textwrap.dedent("""
     Rules:
     - Respond with ONLY a single JSON object, no prose, no markdown fences.
     - Format: {"tool_name": "<name>", "arguments": {<key>: <value>, ...}}
-    - Use the exact tool names and parameter names listed in the tools.
+    - Use the EXACT tool names and EXACT parameter names listed in the tool descriptions.
+      Do NOT invent parameter names (e.g. use "category" not "expense_category").
+    - If a tool call returns an error, read the error carefully and correct the parameter.
+    - Valid bank account IDs are: acc_operating, acc_payroll, acc_reserve, acc_fx.
     - Read previous tool results carefully before deciding the next action.
     - When the task is complete, output: {"tool_name": "done", "arguments": {}}
 """).strip()
