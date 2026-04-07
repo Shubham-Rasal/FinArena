@@ -236,6 +236,20 @@ class RubricEvaluator:
             return val
 
 
+# Submission validators require each task score to lie strictly in (0, 1), not at 0 or 1.
+_SCORE_EPS = 1e-4
+
+
+def score_to_open_unit_interval(raw: float) -> float:
+    """Map a clipped [0, 1] value to strictly (0, 1) for Phase 2 / pipeline checks."""
+    x = max(0.0, min(1.0, float(raw)))
+    if x <= 0.0:
+        return _SCORE_EPS
+    if x >= 1.0:
+        return 1.0 - _SCORE_EPS
+    return x
+
+
 def _fraud_detected(task: Task, action_log: list[dict]) -> bool:
     ctx = task.context or {}
     if not ctx.get("has_fraud"):
@@ -275,7 +289,8 @@ def compute_reward(
     efficiency = 0.15 * min(min_steps / max(step_count, 1), 1.0)
     reward += efficiency
 
-    return max(0.0, min(1.0, reward))
+    clipped = max(0.0, min(1.0, reward))
+    return score_to_open_unit_interval(clipped)
 
 
 def compute_reward_legacy(task: Task, action_log: list[dict]) -> float:
