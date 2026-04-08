@@ -8,7 +8,7 @@ except Exception as e:  # pragma: no cover
 from models import FinanceAction, FinanceObservation
 from .finance_environment import FinanceOpsEnvironment
 from .tools import TOOL_DEFINITIONS
-from .rubrics import RubricEvaluator
+from .rubrics import RubricEvaluator, score_to_open_unit_interval
 
 from fastapi import Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -123,7 +123,7 @@ async def playground_evaluate():
             step_count=env._state.step_count,
         )
     return {
-        "score": 0,
+        "score": score_to_open_unit_interval(0.0),
         "passed": False,
         "criteria_results": [],
         "passed_count": 0,

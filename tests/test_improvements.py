@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "server"))
 
 from world import WorldState
 from tasks import TaskGenerator
-from rubrics import RubricEvaluator, compute_reward
+from rubrics import RubricEvaluator, _SCORE_EPS, compute_reward
 
 
 # ---------------------------------------------------------------------------
@@ -204,14 +204,15 @@ class TestComputeReward:
         task = self._make_task(min_steps=4)
         # Perfect base_score, no penalties, step_count == min_steps
         reward = compute_reward(task, [], None, base_score=1.0, step_count=4)
-        # efficiency = 0.15 * (4/4) = 0.15, total = 1.15 capped at 1.0
-        assert reward == 1.0
+        # efficiency = 0.15 * (4/4) = 0.15, total = 1.15 capped at 1.0 → open interval maps to 1 - eps
+        assert abs(reward - (1.0 - _SCORE_EPS)) < 1e-9
 
     def test_efficiency_is_0_15_not_0_1(self):
         task = self._make_task(min_steps=4)
         # base_score 0.8, no world, step_count = 4 → efficiency = 0.15
         reward = compute_reward(task, [], None, base_score=0.8, step_count=4)
-        assert abs(reward - min(1.0, 0.8 + 0.15)) < 1e-9
+        expected = min(1.0, 0.8 + 0.15)  # 0.95, strictly inside (0,1)
+        assert abs(reward - expected) < 1e-9
 
     def test_efficiency_decreases_with_more_steps(self):
         task = self._make_task(min_steps=4)
@@ -233,7 +234,7 @@ class TestComputeReward:
         task = self._make_task()
         self.world.payroll_missed = True
         reward = compute_reward(task, [], self.world, base_score=1.0, step_count=4)
-        assert reward < 1.0  # -0.4 penalty should fire
+        assert reward < 1.0 - _SCORE_EPS  # -0.4 penalty should fire; score in open interval
 
     def test_reward_clipped_to_0_1(self):
         task = self._make_task()
@@ -245,7 +246,8 @@ class TestComputeReward:
         self.world.accounts["acc_reserve"]["balance"] = 0.0
         self.world.accounts["acc_fx"]["balance"] = 0.0
         reward = compute_reward(task, [], self.world, base_score=0.0, step_count=1)
-        assert 0.0 <= reward <= 1.0
+        # Phase 2: strictly (0, 1), never exactly 0
+        assert _SCORE_EPS <= reward <= 1.0 - _SCORE_EPS
 
 
 # ---------------------------------------------------------------------------

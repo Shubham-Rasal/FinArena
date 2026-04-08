@@ -15,12 +15,12 @@ try:
     from .world import WorldState
     from .tools import ToolRegistry, TOOL_DEFINITIONS
     from .tasks import TaskGenerator
-    from .rubrics import RubricEvaluator
+    from .rubrics import RubricEvaluator, score_to_open_unit_interval
 except ImportError:
     from world import WorldState
     from tools import ToolRegistry, TOOL_DEFINITIONS
     from tasks import TaskGenerator
-    from rubrics import RubricEvaluator
+    from rubrics import RubricEvaluator, score_to_open_unit_interval
 
 
 class FinanceOpsEnvironment(Environment):
@@ -86,7 +86,7 @@ class FinanceOpsEnvironment(Environment):
             max_steps=task_max_steps,
             available_tools=self._tool_names,
             done=False,
-            reward=0.0,
+            reward=score_to_open_unit_interval(0.0),
             metadata={
                 "difficulty": self._current_task.difficulty,
                 "category": self._current_task.category,
@@ -106,7 +106,7 @@ class FinanceOpsEnvironment(Environment):
                 max_steps=self._episode_max_steps,
                 available_tools=self._tool_names,
                 done=True,
-                reward=0.0,
+                reward=score_to_open_unit_interval(0.0),
                 metadata={},
             )
 
@@ -131,11 +131,13 @@ class FinanceOpsEnvironment(Environment):
 
             if done:
                 # Full weighted reward at episode end (includes penalties + efficiency)
-                reward = float(eval_result["score"])
+                raw = float(eval_result["score"])
             else:
                 # Incremental reward: fraction of newly satisfied criteria this step
                 delta = max(0.0, current_criteria_score - self._prev_criteria_score)
-                reward = round(delta * 0.5, 4)
+                raw = round(delta * 0.5, 4)
+            # Phase 2: every observation.reward must lie strictly in (0, 1), never 0.0 or 1.0
+            reward = score_to_open_unit_interval(raw)
 
             self._prev_criteria_score = current_criteria_score
 
