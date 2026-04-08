@@ -116,7 +116,7 @@ class FinanceOpsEnvironment(Environment):
         done = self._state.step_count >= self._episode_max_steps
         self._done = done
 
-        reward = 0.0
+        raw_reward = 0.0
         eval_info: dict[str, Any] = {}
         if self._current_task:
             eval_result = self.evaluator.evaluate(
@@ -131,15 +131,17 @@ class FinanceOpsEnvironment(Environment):
 
             if done:
                 # Full weighted reward at episode end (includes penalties + efficiency)
-                raw = float(eval_result["score"])
+                raw_reward = float(eval_result["score"])
             else:
                 # Incremental reward: fraction of newly satisfied criteria this step
                 delta = max(0.0, current_criteria_score - self._prev_criteria_score)
-                raw = round(delta * 0.5, 4)
-            # Phase 2: every observation.reward must lie strictly in (0, 1), never 0.0 or 1.0
-            reward = score_to_open_unit_interval(raw)
+                raw_reward = round(delta * 0.5, 4)
 
             self._prev_criteria_score = current_criteria_score
+
+        # Always map to open interval (0, 1) — never exactly 0.0 or 1.0
+        # This covers: no-task path, zero-delta steps, and terminal scores
+        reward = score_to_open_unit_interval(raw_reward)
 
         return FinanceObservation(
             task_id=self._current_task.task_id if self._current_task else "",
