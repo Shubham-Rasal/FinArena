@@ -71,5 +71,5 @@ class FinanceObservation(Observation):
     max_steps: int = Field(default=20, description="Episode horizon")
     available_tools: List[str] = Field(default_factory=list, description="Tool names")
     done: bool = Field(default=False, description="Episode finished")
-    reward: float = Field(default=0.0, description="Reward (typically on last step)")
+    reward: float = Field(default=1e-4, description="Reward — always in open interval (0, 1)")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Extra metadata")
