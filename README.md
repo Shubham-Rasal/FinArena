@@ -1,16 +1,8 @@
----
-title: FinArena
-emoji: 💰
-colorFrom: green
-colorTo: blue
-sdk: docker
-app_port: 7860
-pinned: false
----
 
 # FinArena — FinanceOps OpenEnv
 
-An enterprise finance operations environment for training and evaluating AI agents on real-world financial workflows.
+Financial operations take a lot of time and waste a lot of efficiency of knowledge workers. I want to see how far the agents have come and whether they can actuall perform useful financial tasks if trained using RL.
+
 
 ## Overview
 
