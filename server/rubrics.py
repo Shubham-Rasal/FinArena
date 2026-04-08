@@ -62,7 +62,7 @@ class RubricEvaluator:
 
         total = len(criteria_results)
         passed_count = sum(1 for c in criteria_results if c["passed"])
-        base_score = passed_count / total if total > 0 else 0.0
+        base_score = passed_count / total if total > 0 else 0.0001
 
         reward = compute_reward(
             task=task,
