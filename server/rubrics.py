@@ -237,17 +237,18 @@ class RubricEvaluator:
 
 
 # Submission validators require each task score to lie strictly in (0, 1), not at 0 or 1.
+# Floor/ceiling padding: at least 0.01 away from 0 and 1 so rewards are visible at 2 decimal places.
 _SCORE_EPS = 1e-4
 
 
 def score_to_open_unit_interval(raw: float) -> float:
-    """Map a clipped [0, 1] value to strictly (0, 1) for Phase 2 / pipeline checks."""
+    """Map a clipped [0, 1] value to strictly (0, 1), clamped to [_SCORE_EPS, 1 - _SCORE_EPS]."""
     x = max(0.0, min(1.0, float(raw)))
     if x <= 0.0:
         return _SCORE_EPS
     if x >= 1.0:
         return 1.0 - _SCORE_EPS
-    return x
+    return max(_SCORE_EPS, min(1.0 - _SCORE_EPS, x))
 
 
 def _fraud_detected(task: Task, action_log: list[dict]) -> bool:

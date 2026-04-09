@@ -1,4 +1,4 @@
-"""Task definitions and generation for FinanceOpsEnv (80 tasks)."""
+"""Task definitions and generation for FinanceOpsEnv (75 tasks)."""
 
 from __future__ import annotations
 
@@ -51,8 +51,8 @@ def _rc(name: str, desc: str, check: str) -> dict:
 
 
 class TaskGenerator:
-    """Builds 80 tasks (10 simple_lookup, 14 expense_workflow, 10 accounts_payable,
-    10 accounts_receivable, 10 payroll, 10 financial_close, 6 edge_cases, 5 cross_domain + blacklisted edge)."""
+    """Builds 75 tasks (10 simple_lookup, 14 expense_workflow, 10 accounts_payable,
+    10 accounts_receivable, 10 payroll, 10 financial_close, 6 edge_cases, 5 cross_domain)."""
 
     def __init__(self, world: WorldState, seed: int = 42):
         self.world = world
@@ -476,7 +476,7 @@ class TaskGenerator:
             {"min_expected_steps": 5},
         )
 
-        # cross_domain chain tasks (5) -> 80
+        # cross_domain chain tasks (5) -> 75
         add(
             "AR-to-payroll chain: create an invoice for c_001 for ₹500,000, record full payment, "
             "then run payroll for period 2025-06 and disburse emp_0001.",

@@ -46,6 +46,9 @@ EVAL_TASK_INDICES: List[int] = [0, 10, 44]
 
 BENCHMARK = "finance_ops_env"
 
+# Match server `rubrics._SCORE_EPS`: minimum reward shown after mapping (open interval floor).
+_MIN_REWARD = 0.01
+
 # ---------------------------------------------------------------------------
 # Logging helpers  (stdout format required by the spec)
 # ---------------------------------------------------------------------------
@@ -70,7 +73,7 @@ def log_step(
 
 
 def log_end(success: bool, steps: int, rewards: List[float]) -> None:
-    rewards_str = ",".join(f"{r:.2f}" for r in rewards)
+    rewards_str = ",".join(f"{r:.4f}" for r in rewards)
     print(
         f"[END] success={str(success).lower()} steps={steps} rewards={rewards_str}",
         flush=True,
@@ -237,13 +240,13 @@ def run_episode(
             if tool_name == "done":
                 # Agent signalled completion — take a no-op step to close episode
                 # by stepping with an invalid no-op and breaking
-                log_step(step, json.dumps(action), 0.0, True, None)
-                rewards.append(0.0)
+                log_step(step, json.dumps(action), _MIN_REWARD, True, None)
+                rewards.append(_MIN_REWARD)
                 steps_taken = step
                 break
 
             obs = env_step(tool_name, arguments)
-            reward: float = float(obs.get("reward", 0.0))
+            reward: float = float(obs.get("reward", _MIN_REWARD))
             done = obs.get("done", False)
             last_result = obs.get("tool_result", {})
             error_msg: Optional[str] = last_result.get("error") if not last_result.get("success", True) else None

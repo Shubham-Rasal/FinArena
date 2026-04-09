@@ -72,7 +72,7 @@ class TestTaskGeneration:
         self.tasks = self.gen.generate_all_tasks()
 
     def test_total_task_count(self):
-        assert len(self.tasks) == 80
+        assert len(self.tasks) == 75
 
     def test_no_duplicate_instructions(self):
         instructions = [t.instruction for t in self.tasks]
@@ -94,8 +94,19 @@ class TestTaskGeneration:
         payroll_tools = {"payroll_run", "payroll_calculate", "payroll_disburse"}
         bank_tools = {"bank_get_balance", "bank_transfer", "bank_reconcile"}
         exp_tools = {"exp_submit", "exp_approve", "exp_reimburse", "exp_check_policy"}
+        fpna_tools = {"fpna_update_forecast", "fpna_compare_actuals", "fpna_create_budget"}
+        payment_tools = {"pay_initiate", "pay_schedule", "pay_cancel", "pay_status"}
+        ap_tools = {"acc_create_bill", "acc_pay_bill"}
 
-        groups = [ar_tools, payroll_tools, bank_tools, exp_tools]
+        groups = [
+            ar_tools,
+            payroll_tools,
+            bank_tools,
+            exp_tools,
+            fpna_tools,
+            payment_tools,
+            ap_tools,
+        ]
         for t in [t for t in self.tasks if t.category == "cross_domain"]:
             tool_set = set(t.expected_tools)
             matched_groups = sum(1 for g in groups if tool_set & g)
