@@ -11,11 +11,14 @@ MODEL_NAME        Model id       (default: gpt-4o-mini)
 OPENAI_API_KEY    API key        (also accepts HF_TOKEN for HuggingFace router)
 ENV_BASE_URL      Finance server (default: http://localhost:7860)
 
-STDOUT format
--------------
-[START] task=<id> env=finance_ops_env model=<model>
-[STEP]  step=<n> action=<json> reward=<0.00> done=<true|false> error=<msg|null>
-[END]   success=<true|false> steps=<n> rewards=<r1,r2,...>
+STDOUT format (stdout only; one [START], then [STEP] per step, then one [END])
+--------------------------------------------------------------------------------
+[START] task=<task_id> env=finance_ops_env model=<model>
+[STEP] step=<n> action=<json> reward=<0.00> done=<true|false> error=<msg|null>
+[END] success=<true|false> steps=<n> score=<0.00> rewards=<r1,r2,...>
+
+- reward, score, and rewards use 2 decimal places; done/success are lowercase booleans;
+  error is the tool error string or null.
 """
 
 from __future__ import annotations
@@ -42,7 +45,7 @@ TEMPERATURE: float = 0.0
 MAX_TOKENS: int = 256
 
 # task indices: easy (simple_lookup=0), medium (expense_workflow=10), hard (payroll=44)
-EVAL_TASK_INDICES: List[int] = [0, 10, 44]
+EVAL_TASK_INDICES: List[int] = [0, 2, 10, 44]
 
 BENCHMARK = "finance_ops_env"
 
@@ -72,10 +75,10 @@ def log_step(
     )
 
 
-def log_end(success: bool, steps: int, rewards: List[float]) -> None:
+def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
     print(
-        f"[END] success={str(success).lower()} steps={steps} rewards={rewards_str}",
+        f"[END] success={str(success).lower()} steps={steps} score={score:.2f} rewards={rewards_str}",
         flush=True,
     )
 
@@ -206,6 +209,23 @@ def call_llm(
         return {"tool_name": "done", "arguments": {}}
 
 
+def _episode_score(
+    rewards: List[float], last_metadata: Optional[Dict[str, Any]]
+) -> float:
+    """Terminal task score in [0, 1]: prefer env rubric evaluation if present."""
+    ev: Any = None
+    if last_metadata and isinstance(last_metadata.get("evaluation"), dict):
+        ev = last_metadata["evaluation"].get("score")
+    if ev is not None:
+        try:
+            s = float(ev)
+        except (TypeError, ValueError):
+            s = rewards[-1] if rewards else 0.0
+    else:
+        s = rewards[-1] if rewards else 0.0
+    return max(0.0, min(1.0, s))
+
+
 # ---------------------------------------------------------------------------
 # Single-episode runner
 # ---------------------------------------------------------------------------
@@ -226,6 +246,7 @@ def run_episode(
     steps_taken = 0
     success = False
     last_result: Optional[Dict[str, Any]] = None
+    last_metadata: Optional[Dict[str, Any]] = None
     done = obs.get("done", False)
 
     try:
@@ -248,6 +269,7 @@ def run_episode(
             obs = env_step(tool_name, arguments)
             reward: float = float(obs.get("reward", _MIN_REWARD))
             done = obs.get("done", False)
+            last_metadata = obs.get("metadata") if isinstance(obs.get("metadata"), dict) else None
             last_result = obs.get("tool_result", {})
             error_msg: Optional[str] = last_result.get("error") if not last_result.get("success", True) else None
 
@@ -265,7 +287,8 @@ def run_episode(
             success = False
 
     finally:
-        log_end(success=success, steps=steps_taken, rewards=rewards)
+        episode_score = _episode_score(rewards, last_metadata)
+        log_end(success=success, steps=steps_taken, score=episode_score, rewards=rewards)
 
 
 # ---------------------------------------------------------------------------
@@ -293,7 +316,6 @@ def main() -> None:
 
     for task_idx in EVAL_TASK_INDICES:
         run_episode(client, task_idx, tool_defs)
-        print(flush=True)  # blank line between episodes
 
 
 if __name__ == "__main__":
